@@ -1,0 +1,12 @@
+package com.hl.affiliate_project.repository;
+
+import com.hl.affiliate_project.model.Banners;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.stereotype.Repository;
+
+import java.util.List;
+
+@Repository
+public interface BannerRepository extends JpaRepository<Banners, Integer>  {
+	List<Banners> findByStatusOrderByIdDesc(Boolean status);
+}
