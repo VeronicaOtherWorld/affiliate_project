@@ -60,21 +60,25 @@ public class PersonInfoService {
 	// login a person
 	public String login(String email, String rawPassword) {
 		// 1️⃣ 查询用户
-		PersonInfo person = personInfoRepository.findByEmail(email)
+		this.personInfo = personInfoRepository.findByEmail(email)
 						.orElseThrow(() -> new RuntimeException("用户不存在"));
 
 		// 2️⃣ 获取数据库中的加密密码
-		String encryptedPassword = person.getPwd();
+		String encryptedPassword = this.personInfo.getPwd();
 		System.out.println("🔍 the encrypted password in the database: " + encryptedPassword);
 		System.out.println("🔍 the password entered by the user: " + rawPassword);
 
 		// 3️⃣ 进行密码比对
 		if (passwordEncoder.matches(rawPassword, encryptedPassword)) {
 			System.out.println("✅ the password entered by the user: " + rawPassword + " is correct");
-			return jwtService.generateToken(String.valueOf(personInfo)); // 生成并返回JWT
+			System.out.println("---------------------------");
+			System.out.println(this.personInfo.toString());
+			System.out.println("---------------------------");
+			return jwtService.generateToken(this.personInfo.getEmail()); // 生成并返回JWT
 		} else {
 			System.out.println("❌ the password entered by the user is not correct");
-			throw new RuntimeException("Invalid email or password");
+			return null;
+			// throw new RuntimeException("Invalid email or password");
 			// return jwtService.generateToken(String.valueOf(personInfo)); // 生成并返回JWT
 		}
 	}

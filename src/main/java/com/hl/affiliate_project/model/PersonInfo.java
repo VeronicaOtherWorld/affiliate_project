@@ -110,4 +110,19 @@ public class PersonInfo {
 	public void setUpdatedAt(Date updatedAt) {
 		this.updatedAt = updatedAt;
 	}
+
+	@Override
+	public String toString() {
+		return "PersonInfo{" +
+						"id=" + id +
+						", nickname='" + nickname + '\'' +
+						", email='" + email + '\'' +
+						", pwd='" + pwd + '\'' +
+						", avatar='" + avatar + '\'' +
+						", status=" + status +
+						", commission=" + commission +
+						", createdAt=" + createdAt +
+						", updatedAt=" + updatedAt +
+						'}';
+	}
 }

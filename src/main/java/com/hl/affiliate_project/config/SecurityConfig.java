@@ -30,7 +30,9 @@ public class SecurityConfig {
 						.addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
 						.csrf(csrf -> csrf.disable()) // **禁用 CSRF**
 						.authorizeHttpRequests(auth -> auth
-										.requestMatchers("/api/person/register", "/api/person/login").permitAll() // **允许不带 Token 访问**
+										.requestMatchers("/api/person/register",
+														"/api/person/login",
+														"/api/verify/send").permitAll() // **允许不带 Token 访问**
 										.anyRequest().authenticated()
 						)
 						.sessionManagement(

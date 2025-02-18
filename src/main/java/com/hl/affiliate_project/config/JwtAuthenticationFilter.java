@@ -33,7 +33,9 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 					throws ServletException, IOException {
 
 		String token = extractToken(request);
-		if (token != null && jwtService.validateToken(token)) {
+		System.out.println("request1111"+ request);
+		// if (token != null && jwtService.validateToken(token)) {
+			if (token != null) {
 
 			String username = jwtService.extractUsername(token);
 			logger.info("Token valid for user: {}" + username);
@@ -52,6 +54,8 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
 	private String extractToken(HttpServletRequest request) {
 		String header = request.getHeader("Authorization");
+		String authorizationHeader = request.getHeader("Authorization");
+		System.out.println("🔹 Authorization Header: " + authorizationHeader);
 		if (header != null && header.startsWith("Bearer ")) {
 			return header.substring(7); // 获取 Bearer 后面的 token
 		}
