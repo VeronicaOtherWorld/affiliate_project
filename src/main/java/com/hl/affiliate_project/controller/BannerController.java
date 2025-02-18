@@ -8,6 +8,13 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 import java.util.Optional;
 
+
+/**
+ *
+ * handle HTTP requests (API entry point)
+ *
+ * */
+
 @RestController
 @RequestMapping("/api/banners")
 public class BannerController {

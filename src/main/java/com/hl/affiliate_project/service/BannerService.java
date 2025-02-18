@@ -8,6 +8,12 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 import java.util.Optional;
 
+/**
+ * Banner service class
+ * business logic layer (data processing)
+ *
+ * */
+
 @Service
 public class BannerService {
 	@Autowired
@@ -35,7 +41,6 @@ public class BannerService {
 
 	// update banner
 	public Banners updateBanner(int id, Banners bannerDetails) {
-		// todo
 		return bannerRepository.findById(id).map(banner -> {
 			banner.setTitle(bannerDetails.getTitle());
 			banner.setImageUrl(bannerDetails.getImageUrl());
