@@ -8,6 +8,8 @@ import org.springframework.stereotype.Service;
 
 import javax.mail.MessagingException;
 import java.time.LocalDateTime;
+import java.util.List;
+import java.util.Optional;
 import java.util.Random;
 
 @Service
@@ -39,8 +41,6 @@ public class VerifyCodeService {
 		String content = "Your verification code is: " + code + "\nValid for 10 minutes.";
 		try {
 			emailService.sendEmail(email, subject, content);
-		} catch (MessagingException e) {
-			throw new RuntimeException(e);
 		} catch (jakarta.mail.MessagingException e) {
 			throw new RuntimeException(e);
 		}
@@ -49,43 +49,67 @@ public class VerifyCodeService {
 
 	// 校验验证码
 	public boolean verifyCode(String email, String code) {
-		VerifyCode verifyCode = verifyCodeRepository.findByEmailAndCode(email, code)
-						.orElseThrow(() -> new RuntimeException("Invalid verification code."));
+		List<VerifyCode> codes = verifyCodeRepository.findByEmailAndStatus(email, VerifyCode.Status.PENDING);
 
-		if (verifyCode.getStatus() == VerifyCode.Status.USED) {
-			throw new RuntimeException("This verification code has already been used.");
+		if (codes.isEmpty()) {
+			return false; // ❌ 没有可用的验证码
 		}
+
+		// 找到匹配的验证码
+		Optional<VerifyCode> matchedCode = codes.stream()
+						.filter(vc -> vc.getCode().equals(code))
+						.findFirst();
+
+		if (matchedCode.isEmpty()) {
+			return false; // ❌ 输入的验证码不匹配
+		}
+
+		VerifyCode verifyCode = matchedCode.get();
 
 		if (verifyCode.getExpireTime().isBefore(LocalDateTime.now())) {
 			verifyCode.setStatus(VerifyCode.Status.EXPIRED);
 			verifyCodeRepository.save(verifyCode);
-			throw new RuntimeException("Verification code has expired.");
+			return false; // ❌ 验证码已过期
 		}
 
-		// 标记验证码为已使用
+		// ✅ 通过验证，标记为已使用
 		verifyCode.setStatus(VerifyCode.Status.USED);
 		verifyCodeRepository.save(verifyCode);
 
 		return true;
 	}
 
-	public void sendVerificationCode(String email)
-					throws MessagingException, jakarta.mail.MessagingException {
-		String code = EmailService.CodeGenerator.generateCode();
-
-		// 创建验证码实体
-
-		// expire time 5 minutes from now
+	public void sendVerificationCode(String email) throws MessagingException, jakarta.mail.MessagingException {
+		String code = generateCode(); // 生成6位随机验证码
 		LocalDateTime expireTime = LocalDateTime.now().plusMinutes(5);
+
+
+		// 先查找当前邮箱是否已有未过期验证码
+		List<VerifyCode> existingCodes = verifyCodeRepository.findByEmailAndStatus(email, VerifyCode.Status.PENDING);
+
+		// **如果存在未过期验证码，手动过期它**
+		if (!existingCodes.isEmpty()) {
+			for (VerifyCode codeItem : existingCodes) {
+				codeItem.setStatus(VerifyCode.Status.EXPIRED);
+			}
+			verifyCodeRepository.saveAll(existingCodes); // 批量更新验证码状态
+		}
+
+		// **检查是否已有未过期的验证码，避免重复**
+		// List<VerifyCode> existingCodes = verifyCodeRepository.findByEmailAndStatus(email, VerifyCode.Status.PENDING);
+		// if (!existingCodes.isEmpty()) {
+		// 	throw new RuntimeException("验证码已发送，请稍后再试");
+		// }
+
+		// 创建新验证码并存入数据库
 		VerifyCode verifyCode = new VerifyCode(email, code, expireTime);
-
-
-		// 存入数据库
 		verifyCodeRepository.save(verifyCode);
 
-		// 发送邮件
+		// **HTML 格式邮件**
 		String subject = "Your Verification Code";
 		String text = "<p>Your verification code is: <b>" + code + "</b></p>";
+
+		// 发送邮件（确保支持 HTML）
 		emailService.sendEmail(email, subject, text);
 	}
 }

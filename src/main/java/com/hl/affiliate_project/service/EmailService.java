@@ -1,12 +1,13 @@
 package com.hl.affiliate_project.service;
 
+import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.mail.MailException;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
-import javax.mail.MessagingException;
+
 import java.security.SecureRandom;
 
 @Service
@@ -15,7 +16,7 @@ public class EmailService {
 	@Autowired
 	private JavaMailSender mailSender;
 
-	public void sendEmail(String to, String subject, String text) throws MessagingException, jakarta.mail.MessagingException {
+	public void sendEmail(String to, String subject, String text) throws MessagingException {
 		MimeMessage message = mailSender.createMimeMessage();
 		MimeMessageHelper helper = new MimeMessageHelper(message, true);
 

@@ -1,5 +1,6 @@
 package com.hl.affiliate_project.repository;
 import com.hl.affiliate_project.model.PersonInfo;
+import com.hl.affiliate_project.model.VerifyCode;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.Optional;
